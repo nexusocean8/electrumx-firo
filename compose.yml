@@ -1,0 +1,63 @@
+services:
+  firod:
+    image: firoorg/firod:latest
+    container_name: firod
+    restart: unless-stopped
+    stop_signal: SIGTERM
+    stop_grace_period: 120s
+    ports:
+      - "8168:8168"
+      - "8888:8888"
+    user: "0:0"
+    volumes:
+      - ./firo-data:/data
+    command:
+      - -datadir=/data
+      - -rpcauth=${RPC_AUTH}
+      - -rpcallowip=0.0.0.0/0
+      - -rpcport=8888
+      - -server=1
+      - -listen=1
+      - -txindex=1
+      - -mobile=1
+    networks:
+      - firo-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4g
+
+  electrumx:
+    image: nexusocean/electrumx-firo:latest
+
+    container_name: electrumx
+    restart: unless-stopped
+    depends_on:
+      - firod
+    ports:
+      - "50001:50001"
+    environment:
+      - DAEMON_URL=http://${RPC_USER}:${RPC_PASSWORD}@firod:8888/
+      - REPORT_SERVICES=tcp://${REPORT_HOST}:50001
+      - SERVICES=tcp://:50001
+      - COIN=Firo
+      - DB_DIRECTORY=/db
+      - DB_ENGINE=leveldb
+      - ALLOW_ROOT=true
+      - MAX_SEND=50000000
+      - CACHE_MB=256
+    volumes:
+      - ./electrumx-db:/db
+    networks:
+      - firo-net
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1g
+
+networks:
+  firo-net:
+    name: firo-net
+    driver: bridge

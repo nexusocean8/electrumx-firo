@@ -30,7 +30,6 @@ services:
 
   electrumx:
     image: nexusocean/electrumx-firo:latest
-
     container_name: electrumx
     restart: unless-stopped
     depends_on:

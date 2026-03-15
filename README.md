@@ -36,8 +36,6 @@ docker compose up -d
 
 ## Notes
 
-- `firod` must fully sync before ElectrumX will start indexing. This can take several hours.
-- ElectrumX logs `Unauthorized` errors until firod is ready — this is normal.
 - `ALLOW_ROOT=true` is set in the ElectrumX container to avoid permission issues.
 - Adjust `cpus` and `memory` limits in `compose.yml` to suit your hardware.
 

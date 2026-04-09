@@ -17,19 +17,20 @@ services:
       - -rpcport=8888
       - -server=1
       - -listen=1
-      - -txindex=1
       - -mobile=1
+      - -txindex=1
+      - -rpcworkqueue=64
+      - -rpcthreads=8
     networks:
       - firo-net
     deploy:
       resources:
         limits:
           cpus: "2"
-          memory: 4g
+          memory: 3g
 
   electrumx:
     image: nexusocean/electrumx-firo:latest
-
     container_name: electrumx
     restart: unless-stopped
     depends_on:
@@ -38,14 +39,16 @@ services:
       - "50001:50001"
     environment:
       - DAEMON_URL=http://${RPC_USER}:${RPC_PASSWORD}@firod:8888/
-      - REPORT_SERVICES=ssl://${REPORT_HOST}:50002
-      - SERVICES=tcp://:50001
       - COIN=Firo
       - DB_DIRECTORY=/db
       - DB_ENGINE=leveldb
-      - ALLOW_ROOT=true
+      - SERVICES=tcp://:50001
+      - REPORT_SERVICES=ssl://${REPORT_HOST}:50002
+      - PEER_DISCOVERY=on
+      - PEER_ANNOUNCE=yes
       - MAX_SEND=50000000
-      - CACHE_MB=256
+      - CACHE_MB=1500
+      - ALLOW_ROOT=true
     volumes:
       - ./electrumx-db:/db
     networks:
@@ -53,8 +56,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "1"
-          memory: 1g
+          cpus: "3"
+          memory: 4g
 
 networks:
   firo-net:
